@@ -1,4 +1,4 @@
-# algotcs
+# algotcs 2
 My solutions created during the practical 'Advanced Algorithms for Programming Contests'
 in Summer 2023 using Python 3.5 🐍 or C++ 14 👨🏼‍💻.
 
