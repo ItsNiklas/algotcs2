@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <iostream>
+#include <tuple>
 #include <vector>
 
 int main() {
@@ -17,21 +18,22 @@ int main() {
     while (M-- and std::cin >> a)
         den.emplace_back(a);
 
-    std::vector<std::pair<double, std::pair<int, int>>> fractions;
+    // Decimal representation d, num, den.
+    std::vector<std::tuple<double, int, int>> fractions;
 
     // Double for loop to create all possible fractions,
     // along with their real value d.
     for (const int &i : num) {
         for (const int &k : den) {
             d = (double)i / k;
-            fractions.emplace_back(std::make_pair(d, std::make_pair(i, k)));
+            fractions.emplace_back(std::make_tuple(d, i, k));
         }
     }
 
-    // Sort by d. (Then numerator automatically)
+    // Sort tuple.
     std::sort(fractions.begin(), fractions.end());
 
     // Print.
-    for (size_t i = 0; i < fractions.size(); i++)
-        std::cout << fractions[i].second.first << "/" << fractions[i].second.second << std::endl;
+    for (auto tup : fractions)
+        std::cout << std::get<1>(tup) << "/" << std::get<2>(tup) << std::endl;
 }

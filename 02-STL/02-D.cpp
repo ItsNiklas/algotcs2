@@ -12,8 +12,6 @@ int main() {
 
     std::map<std::string, int> words;
 
-    // char chars[] = "!?,.";
-
     // Read words.
     // std::cin reads until whitespace (words).
     while (std::cin >> in) {
@@ -29,7 +27,7 @@ int main() {
         words[in]++;
     }
 
-    // Print result
+    // Print result.
     for (auto &p : words) {
         std::cout << p.first << " " << p.second << std::endl;
     }
