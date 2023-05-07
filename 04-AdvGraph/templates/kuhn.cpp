@@ -8,7 +8,7 @@ bool dfs_kuhn(int v) {
     used[v] = 1;
     for (auto u : edges[v]) {
         int mtu = matchto[u];
-        if (mtu == -1 || !used[mtu] && dfs_kuhn(mtu)) {
+        if (mtu == -1 || (!used[mtu] && dfs_kuhn(mtu))) {
             matchto[u] = v;
             match[v] = u;
             return true;
