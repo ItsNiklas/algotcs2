@@ -1,18 +1,18 @@
-#include <bits/stdc++.h>
-using namespace std;
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <vector>
 
-const int MAXN = 1000005;
-const int LOGN = 21; // 1 << (LOGN-1) >= MAXN
+const int MAXN = 1000005, MAXLOG = 33 - __builtin_ctz(MAXN);
 
+std::vector<int> edges[MAXN];
 int root;
-vector<int> edges[MAXN];
 
-vector<int> visit;
+// LCA template, sparse table variant.
+std::vector<int> visit;
 int firstVisit[MAXN];
 int depth[MAXN];
-
-int st[MAXN][LOGN]; // Sparse Table
-
+int st[MAXN][MAXLOG];
 void lca_dfs(int v = root, int d = 1) {
     firstVisit[v] = visit.size();
     visit.push_back(v);
@@ -24,8 +24,6 @@ void lca_dfs(int v = root, int d = 1) {
         visit.push_back(v);
     }
 }
-
-// New: Build the sparse table
 void lca_build_st() {
     int n = visit.size();
     for (int i = 0; i < n; i++) {
@@ -39,63 +37,50 @@ void lca_build_st() {
         }
     }
 }
-
-// New: Use the sparse table to get the LCA (RMQ)
 int lca_get_st(int l, int r) {
-    int j = log2(r - l + 1);
+    int j = 31 - __builtin_clz(r - l + 1); // log2(r - l + 1)
     int u = st[l][j];
     int v = st[r - (1 << j) + 1][j];
     return depth[u] < depth[v] ? u : v;
 }
-
 void lca_prepare() {
-    visit.clear();
-    memset(firstVisit, 0, sizeof(firstVisit));
-    memset(depth, 0, sizeof(depth));
-
     lca_dfs();
     lca_build_st();
 }
-
 int lca(int a, int b) {
-    int l = min(firstVisit[a], firstVisit[b]);
-    int r = max(firstVisit[a], firstVisit[b]);
+    int l = std::min(firstVisit[a], firstVisit[b]);
+    int r = std::max(firstVisit[a], firstVisit[b]);
     return lca_get_st(l, r);
 }
 
-void lca_update(int a, int b) {
-    edges[a].push_back(b);
-    visit.push_back(a);
-    visit.push_back(b);
-}
-
 int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
     int K, a, b;
-    string type;
-    vector<pair<int, int>> queries;
+    std::string type;
+    std::vector<std::pair<int, int>> queries;
 
+    // Original species.
     root = 1;
 
-    cin >> K;
-    while (cin >> type >> a >> b) {
-        if (type == "ADD") {
-            // denoting that species b has evolved from species a
-            lca_update(a, b);
-        } else if (type == "GET") {
+    std::cin >> K;
+    while (std::cin >> type >> a >> b) {
+        if (type == "ADD")
+            // Denoting that species b has evolved from species a.
+            // Add an edge from a to b.
+            edges[a].push_back(b);
+        else if (type == "GET")
             // requesting the index of the latest evolved species of which both a and b descended
-            // THE QUERIES CAN BE CACHED!
+            // Important in this problem: THE GET QUERIES CAN BE DELAYED!
+            // This is because the answer to a query is preserved even if the tree is updated,
+            // as only descendants are added.
             queries.push_back({a, b});
-        }
     }
 
-    // update the tree
+    // Prepare the LCA.
+    // By caching the queries, we can answer them in O(1) time, as we
+    // only need to prepare the LCA once.
     lca_prepare();
 
-    // answer the queries
-    for (auto q : queries) {
-        cout << lca(q.first, q.second) << endl;
-    }
+    // Answer the queries.
+    for (std::pair<int, int> q : queries)
+        std::cout << lca(q.first, q.second) << std::endl;
 }
