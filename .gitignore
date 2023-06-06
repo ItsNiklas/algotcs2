@@ -1,3 +1,6 @@
+# Notes
+*.xopp
+
 # Testing
 *.in
 *.out
