@@ -1,0 +1,76 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<vector<int>> c;
+vector<int> p;
+
+int l, n;
+bool cmp(int i, int j) {
+    if (c[l][i] != c[l][j])
+        return c[l][i] < c[l][j];
+    return ((i + (1 << l) < n) ? c[l][i + (1 << l)] : -1) <
+           ((j + (1 << l) < n) ? c[l][j + (1 << l)] : -1);
+}
+
+void construct_suffix_array(string s) {
+    n = s.length();
+    p.resize(n);
+    iota(p.begin(), p.end(), 0);
+    c.push_back(vector<int>(s.begin(), s.end()));
+    for (int k = n; k > 0; k /= 2, l++) {
+        c.push_back(c.back());
+        sort(p.begin(), p.end(), cmp);
+        c.back()[p[0]] = 0;
+        for (int i = 1, j = 0; i < n; i++)
+            c.back()[p[i]] = (j += cmp(p[i - 1], p[i]));
+    }
+}
+
+vector<int> logsize;
+void precalc(int n) {
+    logsize.resize(n + 1);
+    for (int i = 1, l = 0; i <= n; l++)
+        while (i <= (2 << l) && i <= n)
+            logsize[i++] = l;
+}
+
+int compare(int i, int j, int l) {
+    int lg = logsize[l];
+    pair<int, int> a = {c[lg][i], c[lg][i + l - (1 << lg)]};
+    pair<int, int> b = {c[lg][j], c[lg][j + l - (1 << lg)]};
+    return a == b ? 0 : a < b ? -1 : 1;
+}
+
+int lcp(int i, int j) {
+    int ans = 0;
+    for (int k = c.size(); k >= 0; --k)
+        if (c[k][i] == c[k][j]) {
+            ans += 1 << k;
+            i += 1 << k;
+            j += 1 << k;
+        }
+    return ans;
+}
+
+const int MAXN = 100001;
+
+int h[MAXN];
+int pinv[MAXN];
+
+void kasai(string s, int n) {
+    for (int i = 0; i < n; i++)
+        pinv[p[i]] = i;
+
+    for (int i = 0, k = 0; i < n; i++) {
+        if (pinv[i] == n - 1) {
+            k = 0;
+            continue;
+        }
+
+        int j = p[pinv[i] + 1];
+        while (i + k < n && j + k < n && s[i + k] == s[j + k])
+            k++;
+        h[pinv[i]] = k;
+        k = max(0, k - 1);
+    }
+}
